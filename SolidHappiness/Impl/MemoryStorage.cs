@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SolidHappiness
+namespace SolidHappiness.Impl
 {
     internal class MemoryStorage : IStorage
     {
