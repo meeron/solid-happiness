@@ -7,9 +7,11 @@ namespace SolidHappiness.Tests
     public class AlwaysResultTests
     {
         [Fact]
-        public void Test_Method_Without_Parameters()
+        public void Call_Method_Without_Parameters_And_Get_Result()
         {
-            bool mockResult = AlwaysResult<MockClass>.Call(c => c.Method1());
+            bool mockResult = AlwaysResult<MockClass>.Call(c => c.Method1(), new MockClass());
+
+            Assert.True(mockResult);
         }
     }
 
@@ -17,7 +19,7 @@ namespace SolidHappiness.Tests
     {
         public bool Method1()
         {
-            return false;
+            return true;
         }
     }
 }
