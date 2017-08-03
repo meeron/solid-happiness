@@ -12,10 +12,18 @@ namespace SolidHappiness
 
         private readonly T _obj;
 
+        private Action<Exception> _exceptionHandler;
+
         internal AlwaysResultCaller(IStorage storage, T obj)
         {
             _storage = storage;
             _obj = obj;
+        }
+
+        public AlwaysResultCaller<T> WithExceptionHandler(Action<Exception> handler)
+        {
+            _exceptionHandler = handler;
+            return this;
         }
 
         public TResult Invoke<TResult>(Expression<Func<T, TResult>> expression)
@@ -34,6 +42,9 @@ namespace SolidHappiness
             {
                 if (!_storage.Exists(key))
                     throw ex;
+
+                if (_exceptionHandler != null)
+                    _exceptionHandler(ex);                    
             }
 
             return (TResult)_storage.Get(key);

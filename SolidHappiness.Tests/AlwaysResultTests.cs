@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Xunit;
 using SolidHappiness;
 using NSubstitute;
@@ -45,6 +46,22 @@ namespace SolidHappiness.Tests
 
             Assert.Equal(result11, result21);
             Assert.Equal(result12, result22);           
+        }
+
+        [Fact]
+        public void Call_Method_With_ExceptionHandler()
+        {
+            var mock = Substitute.For<IMockClass>();
+
+            mock.Method2("test", 1).Returns("test");
+            AlwaysResult.For<IMockClass>(mock).Invoke(c => c.Method2("test", 1));
+
+            mock.Method2("test", 1).Returns(x => { throw new Exception(); });
+            AlwaysResult.For<IMockClass>(mock)
+                .WithExceptionHandler((ex) => mock.Method1())
+                .Invoke(c => c.Method2("test", 1));
+
+            mock.Received().Method1();
         }
     }
 
