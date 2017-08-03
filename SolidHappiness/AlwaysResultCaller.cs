@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SolidHappiness
 {
@@ -37,6 +38,30 @@ namespace SolidHappiness
             try
             {
                 _storage.Set(key, methodExpression.Method.Invoke(_obj, parameters));
+            }
+            catch (System.Exception ex)
+            {
+                if (!_storage.Exists(key))
+                    throw ex;
+
+                if (_exceptionHandler != null)
+                    _exceptionHandler(ex);                    
+            }
+
+            return (TResult)_storage.Get(key);
+        }
+
+        public async Task<TResult> InvokeAsync<TResult>(Expression<Func<T, Task<TResult>>> expression)
+        {
+            var methodExpression = (expression.Body as MethodCallExpression);
+            var parameters = methodExpression.Arguments.Select(a =>
+                LabelExpression.Lambda(a).Compile().DynamicInvoke()).ToArray();
+
+            var key = $"{typeof(T)}.{methodExpression.Method.Name}_{string.Join(",", parameters)}";
+
+            try
+            {
+                _storage.Set(key, await (Task<TResult>)methodExpression.Method.Invoke(_obj, parameters));
             }
             catch (System.Exception ex)
             {
