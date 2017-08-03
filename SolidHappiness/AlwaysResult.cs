@@ -13,7 +13,8 @@ namespace SolidHappiness
         public static TResult Call<TResult>(Expression<Func<T, TResult>> expression, T obj)
         {
             var methodExpression = (expression.Body as MethodCallExpression);
-            var parameters = methodExpression.Arguments.Select(a => (a as ConstantExpression).Value).ToArray();
+            var parameters = methodExpression.Arguments.Select(a =>
+                LabelExpression.Lambda(a).Compile().DynamicInvoke()).ToArray();
 
             var key = $"{typeof(T)}.{methodExpression.Method.Name}_{string.Join(",", parameters)}";
 
