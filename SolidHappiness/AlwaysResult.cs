@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SolidHappiness
@@ -11,11 +12,13 @@ namespace SolidHappiness
         public static TResult Call<TResult>(Expression<Func<T, TResult>> expression, T obj)
         {
             var methodExpression = (expression.Body as MethodCallExpression);
-            var key = $"{typeof(T)}.{methodExpression.Method.Name}";
+            var parameters = methodExpression.Arguments.Select(a => (a as ConstantExpression).Value).ToArray();
+
+            var key = $"{typeof(T)}.{methodExpression.Method.Name}_{string.Join(",", parameters)}";
 
             try
             {
-                _storage.Set(key, methodExpression.Method.Invoke(obj, new object[] {}));
+                _storage.Set(key, methodExpression.Method.Invoke(obj, parameters));
             }
             catch (System.Exception ex)
             {
