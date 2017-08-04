@@ -110,10 +110,10 @@ namespace SolidHappiness.Tests
             var mock2 = Substitute.For<IMockClass>();
             mock2.Method3Async().Returns(Task<string>.Factory.StartNew(() => throw new Exception()));
 
-            await AlwaysResult.For<IMockClass>(mock1).Invoke(c => c.Method3Async());
+            await AlwaysResult.For<IMockClass>(mock1).InvokeAsync(c => c.Method3Async());
             await AlwaysResult.For<IMockClass>(mock2)
                 .WithExceptionHandler((ex) => mock.Method1())
-                .Invoke(c => c.Method3Async());
+                .InvokeAsync(c => c.Method3Async());
 
             mock.Received().Method1();
         }                
